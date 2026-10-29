@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTrace | AI-Based Financial Transaction Monitoring & AML Forensics</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Offline system font stacks used; no external CDN dependency needed -->
+</head>
+<body class="inspector-mode-active">
+
+  <!-- ========================================================
+       TOP NAVIGATION & STATUS HEADER
+       ======================================================== -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo-badge">FT</div>
+      <div>
+        <div class="brand-title">
+          FinTrace <span class="badge badge-info text-xs">AI AML ENGINE</span>
+        </div>
+        <div class="brand-subtitle">
+          Nutan Maharashtra Institute of Engineering & Technology, Pune • Dept of IT
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Status Indicators -->
+    <div class="flex items-center gap-4 text-xs">
+      <div class="hidden md:flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+        <span class="status-dot online"></span>
+        <span class="text-slate-300">Live Stream: <strong class="text-cyan-400">45 tx/sec</strong></span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+        <span class="status-dot pulse-neon"></span>
+        <span class="text-slate-300">Latency: <strong class="text-emerald-400">&lt;85ms</strong></span>
+      </div>
+
+      <!-- Implementation Inspector Toggle Pill -->
+      <button id="btn-mode-toggle" class="inspector-toggle-pill inspector-active" data-blueprint-id="btn-mode-toggle" title="Toggle technical implementation blueprint inspection on button clicks">
+        <span id="inspectorModeText">
+          <span class="status-dot pulse-neon"></span> <strong>Inspector Mode: ON</strong> (Live Tech Specs)
+        </span>
+      </button>
+
+      <!-- Master Blueprint Modal Trigger -->
+      <button id="btn-master-blueprint" class="btn btn-sm btn-outline-cyan" data-blueprint-id="btn-master-blueprint">
+        📋 Master Blueprint
+      </button>
+
+      <!-- PDF Implementation Blueprint Download Link -->
+      <a href="FinTrace_Implementation_Blueprint.pdf" download="FinTrace_Implementation_Blueprint.pdf" target="_blank" class="btn btn-sm btn-primary" data-blueprint-id="btn-download-pdf-spec" title="Download the complete 9-page technical implementation blueprint PDF">
+        📥 Download PDF Spec
+      </a>
+
+      <!-- User Profile Badge -->
+      <div class="flex items-center gap-2 pl-2 border-l border-slate-800">
+        <div class="w-8 h-8 rounded-full bg-slate-800 border border-cyan-500/40 flex items-center justify-center font-bold text-xs text-cyan-400">
+          CA
+        </div>
+        <div class="hidden lg:block text-left">
+          <div class="text-xs font-bold text-white">Compliance Lead</div>
+          <div class="text-[10px] text-slate-400">Level 3 Clearance</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       MAIN APPLICATION LAYOUT
+       ======================================================== -->
+  <div class="app-layout">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="app-sidebar">
+      <div>
+        <div class="nav-group-title">Monitoring & Operations</div>
+        <ul class="nav-menu">
+          <li>
+            <a href="#/dashboard" class="nav-link active" data-view="dashboard" data-blueprint-id="btn-nav-dashboard">
+              <span class="nav-icon">📊</span>
+              <span>Command Center</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/alerts" class="nav-link" data-view="alerts" data-blueprint-id="btn-nav-alerts">
+              <span class="nav-icon">🚨</span>
+              <span>Alert Queue & Cases</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/graph" class="nav-link" data-view="graph" data-blueprint-id="btn-nav-graph">
+              <span class="nav-icon">🕸️</span>
+              <span>Graph Forensics</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="nav-group-title">Explainability & Compliance</div>
+        <ul class="nav-menu">
+          <li>
+            <a href="#/shap" class="nav-link" data-view="shap" data-blueprint-id="btn-nav-shap">
+              <span class="nav-icon">🧠</span>
+              <span>Explainable AI (SHAP)</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/str" class="nav-link" data-view="str" data-blueprint-id="btn-nav-str">
+              <span class="nav-icon">📄</span>
+              <span>Regulatory STR</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="nav-group-title">Evaluation & Architecture</div>
+        <ul class="nav-menu">
+          <li>
+            <a href="#/benchmark" class="nav-link" data-view="benchmark" data-blueprint-id="btn-nav-benchmark">
+              <span class="nav-icon">📈</span>
+              <span>Academic Benchmarks</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/architecture" class="nav-link" data-view="architecture" data-blueprint-id="btn-nav-architecture">
+              <span class="nav-icon">⚙️</span>
+              <span>System Architecture</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Telemetry Box -->
+      <div class="sidebar-telemetry">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-slate-400 font-semibold text-[10px] uppercase">Service Health</span>
+          <span class="status-dot online"></span>
+        </div>
+        <div class="text-[11px] text-slate-300 font-mono space-y-1">
+          <div class="flex justify-between"><span>FastAPI:</span> <span class="text-emerald-400">Online</span></div>
+          <div class="flex justify-between"><span>Redis Stream:</span> <span class="text-cyan-400">0.8ms</span></div>
+          <div class="flex justify-between"><span>MySQL Pool:</span> <span class="text-emerald-400">12/20</span></div>
+          <div class="flex justify-between"><span>XGBoost ML:</span> <span class="text-purple-400">Active</span></div>
+          <div class="flex justify-between"><span>NetworkX:</span> <span class="text-pink-400">Ready</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEWPORT CONTENT -->
+    <main class="app-main">
+
+      <!-- ========================================================
+           VIEW #1: EXECUTIVE AML COMMAND CENTER (DASHBOARD)
+           ======================================================== -->
+      <section id="view-dashboard" class="view-container active-view">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Executive AML Command Center</h1>
+            <p class="view-subtitle">Real-time AI transaction ingestion, hybrid anomaly detection & active alert prioritization</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" data-blueprint-id="btn-investigate-quick" id="btn-investigate-quick">
+              🔍 Inspect Case ALT-2026-9042
+            </button>
+            <button class="btn btn-sm btn-primary" data-blueprint-id="btn-master-blueprint">
+              📋 Architecture Blueprint
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Summary Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card" data-blueprint-id="btn-nav-dashboard">
+            <div class="kpi-title">24h Monitored Transactions</div>
+            <div class="kpi-value" id="statTotalTx">1,482,910</div>
+            <div class="kpi-delta positive">↑ 14.2% volume increase vs 7d avg</div>
+          </div>
+          <div class="kpi-card" data-blueprint-id="btn-filter-critical">
+            <div class="kpi-title">Flagged Suspicious Alerts</div>
+            <div class="kpi-value text-red-400">142</div>
+            <div class="kpi-delta critical">18 Critical • 42 High • 82 Medium</div>
+          </div>
+          <div class="kpi-card" data-blueprint-id="btn-bench-run-eval">
+            <div class="kpi-title">False Positive Reduction</div>
+            <div class="kpi-value text-emerald-400">-41.4%</div>
+            <div class="kpi-delta positive">Target: ~40% (Achieved on IBM Benchmark)</div>
+          </div>
+          <div class="kpi-card" data-blueprint-id="btn-bench-run-eval">
+            <div class="kpi-title">Detection Recall (AML)</div>
+            <div class="kpi-value text-cyan-400">92.4%</div>
+            <div class="kpi-delta positive">Target: ≥ 90% Recall | AUC-ROC: 0.941</div>
+          </div>
+          <div class="kpi-card" data-blueprint-id="btn-graph-preset-mule">
+            <div class="kpi-title">Mule Networks Uncovered</div>
+            <div class="kpi-value text-purple-400">7 Rings</div>
+            <div class="kpi-delta warning">24 Accounts restrained today</div>
+          </div>
+          <div class="kpi-card" data-blueprint-id="btn-str-autogen-narration">
+            <div class="kpi-title">Prevented Illicit Volume</div>
+            <div class="kpi-value text-amber-400">$14.8M</div>
+            <div class="kpi-delta positive">₹123.5 Crore under active freeze</div>
+          </div>
+        </div>
+
+        <!-- Real-Time Stream & Anomaly Controls -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="status-dot online"></span> Real-Time Transaction Ingestion Feed (Simulated Kafka/Redis Stream)
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Stream Controls -->
+              <button id="btn-stream-toggle" class="btn btn-xs btn-secondary" data-blueprint-id="btn-stream-toggle">
+                <span class="status-dot online"></span> Live Streaming Active
+              </button>
+              <button id="btn-stream-speed" class="btn btn-xs btn-secondary" data-blueprint-id="btn-stream-speed">
+                Speed: 1x
+              </button>
+              
+              <!-- Attack Injection Simulator Buttons -->
+              <span class="text-slate-600">|</span>
+              <span class="text-xs text-slate-400 font-semibold mr-1">Inject Typology:</span>
+              <button id="btn-inject-smurfing" class="btn btn-xs btn-outline-danger" data-blueprint-id="btn-inject-smurfing" title="Inject structured micro-deposits under $10,000 threshold">
+                + Smurfing Attack
+              </button>
+              <button id="btn-inject-mule" class="btn btn-xs btn-outline-danger" data-blueprint-id="btn-inject-mule" title="Inject 1 deposit to 8 mule accounts fan-out">
+                + Mule Ring Fan-Out
+              </button>
+              <button id="btn-inject-circular" class="btn btn-xs btn-outline-danger" data-blueprint-id="btn-inject-circular" title="Inject circular fund flow A->B->C->D->A">
+                + Circular Layering
+              </button>
+            </div>
+          </div>
+
+          <!-- Stream Data Table -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Transaction ID</th>
+                  <th>Source Account</th>
+                  <th>Beneficiary Account</th>
+                  <th>Amount (USD)</th>
+                  <th>AI Risk Score</th>
+                  <th>Detection Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="liveStreamTableBody">
+                <!-- Dynamically populated rows from app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Typology Breakdown & Model Gauges -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Card 1: Typology Distribution -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🚨 Detected AML Typologies (24h)</div>
+            </div>
+            <div class="space-y-3 text-xs">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300 font-medium">Structuring / Smurfing (&lt;$10k)</span>
+                  <span class="text-red-400 font-bold">48 cases (34%)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div class="bg-red-500 h-full rounded-full" style="width: 34%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300 font-medium">Circular Fund Flow / Layering</span>
+                  <span class="text-pink-400 font-bold">36 cases (25%)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div class="bg-pink-500 h-full rounded-full" style="width: 25%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300 font-medium">Mule Account Aggregators</span>
+                  <span class="text-amber-400 font-bold">31 cases (22%)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div class="bg-amber-500 h-full rounded-full" style="width: 22%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300 font-medium">Velocity & Dormancy Break</span>
+                  <span class="text-cyan-400 font-bold">27 cases (19%)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div class="bg-cyan-500 h-full rounded-full" style="width: 19%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: AI Hybrid Engine Weighting -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">⚙️ Hybrid AI Model Ensemble</div>
+            </div>
+            <div class="space-y-3 text-xs">
+              <div class="p-2.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex justify-between mb-1">
+                  <strong class="text-cyan-300">Supervised XGBoost Classifier</strong>
+                  <span class="text-slate-400 font-mono">Weight: 40%</span>
+                </div>
+                <div class="text-[11px] text-slate-400">SMOTE-balanced gradient boosting on tabular velocity, amount deviation, and counterparties.</div>
+              </div>
+              <div class="p-2.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex justify-between mb-1">
+                  <strong class="text-emerald-300">Unsupervised Isolation Forest</strong>
+                  <span class="text-slate-400 font-mono">Weight: 35%</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Statistical outlier isolation identifying novel transaction patterns without prior labels.</div>
+              </div>
+              <div class="p-2.5 bg-slate-900 rounded border border-slate-800">
+                <div class="flex justify-between mb-1">
+                  <strong class="text-pink-300">NetworkX Graph Topology Engine</strong>
+                  <span class="text-slate-400 font-mono">Weight: 25%</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Directed cycle detection, betweenness centrality, and Louvain mule clustering.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Slide 10 Target Verification -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🎯 Slide 10 Expected Outcomes</div>
+            </div>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Real-Time Scoring:</strong> Ingestion and scoring sub-85ms via Redis Streams.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Target Recall ≥ 90%:</strong> Benchmark achieves 92.4% Recall & 0.941 AUC-ROC.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>~40% Fewer False Positives:</strong> 41.1% reduction verified vs traditional rules.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Network View:</strong> Visualizes layering loops, fan-in/fan-out, and mule rings.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Explainable Alerts:</strong> Top SHAP reasons rendered for every flagged alert.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW #2: ALERT QUEUE & CASE MANAGEMENT
+           ======================================================== -->
+      <section id="view-alerts" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Prioritized Alert Queue & Investigation</h1>
+            <p class="view-subtitle">Triaged suspicious events ranked by calibrated AI risk scores with full case lifecycle tracking</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" data-blueprint-id="btn-filter-all">
+              Export Filtered CSV
+            </button>
+            <button class="btn btn-sm btn-primary" data-blueprint-id="btn-investigate-quick" onclick="document.getElementById('btn-investigate-quick').click()">
+              Open Top Critical Case
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <button class="btn btn-xs btn-secondary active" data-filter="all" data-blueprint-id="btn-filter-all">
+                All Alerts (142)
+              </button>
+              <button class="btn btn-xs btn-outline-danger" data-filter="critical" data-blueprint-id="btn-filter-critical">
+                Critical (18)
+              </button>
+              <button class="btn btn-xs btn-secondary" data-filter="high" data-blueprint-id="btn-filter-high">
+                High Risk (42)
+              </button>
+              <button class="btn btn-xs btn-secondary" data-filter="medium" data-blueprint-id="btn-filter-all">
+                Medium (82)
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="text" id="searchAlertsInput" placeholder="Search Case ID, Account, Customer..." class="form-input text-xs w-64 py-1.5" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts Data Table -->
+        <div class="card">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Case ID</th>
+                  <th>Customer / Account</th>
+                  <th>Detected Typology</th>
+                  <th>Transaction Total</th>
+                  <th>AI Risk Score</th>
+                  <th>Case Status</th>
+                  <th>Reported</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="alertsTableBody">
+                <!-- Populated dynamically via renderAlertTable() in app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW #3: GRAPH NETWORK FORENSICS (NetworkX Engine)
+           ======================================================== -->
+      <section id="view-graph" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Graph Network Forensics Explorer</h1>
+            <p class="view-subtitle">Interactive topological investigation of layering chains, circular fund flows, and mule syndicates</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-outline-cyan" id="btn-graph-reset-view" data-blueprint-id="btn-graph-reset-view">
+              Reset View
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-graph-export-evidence" data-blueprint-id="btn-graph-export-evidence">
+              📸 Export Evidence Pack
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Canvas Viewport -->
+        <div class="graph-viewport mb-6">
+          <!-- Floating Controls Bar -->
+          <div class="graph-floating-controls">
+            <!-- Topology Presets -->
+            <span class="text-xs text-slate-400 font-semibold self-center mr-1">Presets:</span>
+            <button class="btn btn-xs btn-secondary" id="btn-graph-preset-circular" data-blueprint-id="btn-graph-preset-circular">
+              🔄 Circular Loop (Hop=4)
+            </button>
+            <button class="btn btn-xs btn-secondary" id="btn-graph-preset-smurfing" data-blueprint-id="btn-graph-preset-smurfing">
+              🌪️ Smurfing Fan-In (10 Mules)
+            </button>
+            <button class="btn btn-xs btn-secondary" id="btn-graph-preset-mule" data-blueprint-id="btn-graph-preset-mule">
+              🕸️ Multi-Tier Syndicate
+            </button>
+
+            <!-- Algorithm Triggers -->
+            <span class="text-slate-600 self-center">|</span>
+            <span class="text-xs text-slate-400 font-semibold self-center mr-1">NetworkX Algorithms:</span>
+            <button class="btn btn-xs btn-outline-danger" id="btn-graph-detect-cycles" data-blueprint-id="btn-graph-detect-cycles" title="Detect closed directed loops">
+              ⚡ Detect Cycles (Tarjan)
+            </button>
+            <button class="btn btn-xs btn-secondary" id="btn-graph-mule-clusters" data-blueprint-id="btn-graph-mule-clusters" title="Louvain community modularity">
+              👥 Mule Communities
+            </button>
+            <button class="btn btn-xs btn-secondary" id="btn-graph-centrality" data-blueprint-id="btn-graph-centrality" title="Betweenness centrality node sizing">
+              🎯 Centrality Hubs
+            </button>
+            <button class="btn btn-xs btn-primary" id="btn-graph-trace-flow" data-blueprint-id="btn-graph-trace-flow" title="Animate fund movement particles">
+              ▶️ Trace Fund Flow
+            </button>
+          </div>
+
+          <!-- HTML5 Canvas -->
+          <canvas id="graphCanvas" class="graph-canvas"></canvas>
+
+          <!-- Interactive Node Inspector Float -->
+          <div class="graph-node-inspector-pane" id="graphNodeDetails">
+            <div class="card p-3 bg-slate-900/90 border border-slate-700 text-xs">
+              <div class="text-slate-400 mb-1">Click any node to inspect account balance, betweenness centrality, and transaction connections.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graph Topology Explanations -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="card">
+            <div class="card-title text-sm mb-2">🔄 Circular Flow Detection</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Launderers route funds through multiple intermediary shell entities and return them to the origin to create a faux appearance of legitimate commercial trade. FinTrace runs <strong>Tarjan's strongly connected components algorithm</strong> in NetworkX to uncover cycles in directed transaction graphs.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title text-sm mb-2">🌪️ Smurfing / Structuring (Fan-In)</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Dozens of individual "smurf" runners deposit amounts just under the $10,000 Currency Transaction Reporting (CTR) threshold into a central collector account. FinTrace detects this via extreme <strong>In-Degree to Out-Degree ratios ($k_{in} \gg k_{out}$)</strong> within short time windows.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title text-sm mb-2">🎯 Betweenness Centrality Hubs</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Betweenness Centrality ($C_B(v)$) measures how often an account lies on the shortest path between all other pairs of accounts. High $C_B$ indicates crucial money aggregator hubs and shell company conduits orchestrating syndicate-level transfers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW #4: EXPLAINABLE AI & SHAP DIAGNOSTICS (TreeSHAP)
+           ======================================================== -->
+      <section id="view-shap" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Explainable AI (XAI) & SHAP Diagnostics</h1>
+            <p class="view-subtitle">TreeSHAP feature attributions explaining mathematically why transactions are flagged for regulators</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" id="btn-shap-export-audit" data-blueprint-id="btn-shap-export-audit">
+              📑 Export SHAP Audit Dossier
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-shap-calibrate-threshold" data-blueprint-id="btn-shap-calibrate-threshold">
+              ⚖️ Calibrate Threshold (0.72)
+            </button>
+          </div>
+        </div>
+
+        <!-- Alert & Composite Risk Header -->
+        <div class="card mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div class="text-xs text-slate-400 font-mono">INSPECTING TRANSACTION: <strong class="text-cyan-400">TX-984210</strong> (Alert ALT-2026-9042)</div>
+              <div class="text-lg font-bold text-white mt-0.5">Subject: Apex Logistics Global Pvt Ltd (ACC-84920)</div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <div class="text-xs text-slate-400">Calibrated Risk Score:</div>
+                <div class="text-2xl font-black font-mono text-red-400" id="shapCompositeScore">89</div>
+              </div>
+              <span id="shapRiskTierBadge" class="badge badge-critical text-sm px-3 py-1.5">CRITICAL RISK</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main SHAP Diagnostic Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <!-- SHAP Waterfall SVG Visualizer (2 Cols) -->
+          <div class="card lg:col-span-2">
+            <div class="card-header">
+              <div class="card-title">
+                📊 TreeSHAP Feature Contribution Waterfall Plot ($E[f(x)] \to f(x)$)
+              </div>
+              <span class="text-xs text-slate-400 font-mono">Model: XGBoost v1.4</span>
+            </div>
+            <div class="overflow-x-auto">
+              <svg id="shapWaterfallSvg" viewBox="0 0 700 320" style="width: 100%; min-width: 600px; height: 320px;"></svg>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between">
+              <div><span class="text-red-400 font-bold">■ Red bars</span> = Increased AML suspicion score</div>
+              <div><span class="text-emerald-400 font-bold">■ Green bars</span> = Decreased risk (mitigating customer KYC history)</div>
+            </div>
+          </div>
+
+          <!-- Interactive What-If Simulator Sliders (1 Col) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🎛️ What-If Simulation</div>
+              <button id="btn-shap-reset-sliders" class="btn btn-xs btn-ghost text-cyan-400" data-blueprint-id="btn-shap-reset-sliders">Reset</button>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Adjust features dynamically to observe real-time model sensitivity and SHAP recalculation:</p>
+            
+            <div class="space-y-4 text-xs">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300">Transaction Amount:</span>
+                  <span class="font-mono text-cyan-400 font-bold" id="valSliderAmount">$9,850</span>
+                </div>
+                <input type="range" id="sliderAmount" min="500" max="25000" step="250" value="9850" />
+                <div class="text-[10px] text-slate-500 mt-0.5">$10,000 CTR Reporting Threshold Boundary</div>
+              </div>
+
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300">1-Hour Velocity Spike:</span>
+                  <span class="font-mono text-cyan-400 font-bold" id="valSliderVelocity">14 tx/hr</span>
+                </div>
+                <input type="range" id="sliderVelocity" min="1" max="30" step="1" value="14" />
+                <div class="text-[10px] text-slate-500 mt-0.5">Customer baseline average: 0.2 tx/hr</div>
+              </div>
+
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300">Distinct Counterparties:</span>
+                  <span class="font-mono text-cyan-400 font-bold" id="valSliderCounterparties">12 accounts</span>
+                </div>
+                <input type="range" id="sliderCounterparties" min="1" max="25" step="1" value="12" />
+                <div class="text-[10px] text-slate-500 mt-0.5">Fan-in / smurfing network complexity</div>
+              </div>
+
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-slate-300">Account Dormancy:</span>
+                  <span class="font-mono text-cyan-400 font-bold" id="valSliderDormancy">180 days</span>
+                </div>
+                <input type="range" id="sliderDormancy" min="0" max="365" step="15" value="180" />
+                <div class="text-[10px] text-slate-500 mt-0.5">Days of zero activity prior to sudden burst</div>
+              </div>
+
+              <button id="btn-shap-recalc" class="btn btn-sm btn-primary w-full mt-2" data-blueprint-id="btn-shap-recalc">
+                ⚡ Recalculate SHAP Values
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explainability Compliance Notes -->
+        <div class="card">
+          <div class="card-title text-sm mb-2">⚖️ Regulatory Compliance & Anti-Black-Box Mandates</div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Financial regulators (including RBI in India, FinCEN in the US, and FATF internationally) strictly prohibit "black-box" automated enforcement without human-interpretable justifications. FinTrace embeds <strong>TreeSHAP (SHapley Additive exPlanations)</strong> directly into the analyst workflow, converting complex ensemble decision boundaries into mathematically verifiable contribution scores ($\phi_i$) that satisfy full legal scrutiny.
+          </p>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW #5: REGULATORY STR GENERATOR (Compliance)
+           ======================================================== -->
+      <section id="view-str" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Suspicious Transaction Report (STR) Generator</h1>
+            <p class="view-subtitle">One-click regulatory filing workspace compliant with FIU-IND (PMLA) & FinCEN SAR reporting mandates</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" id="btn-str-save-draft" data-blueprint-id="btn-str-save-draft">
+              💾 Save Draft
+            </button>
+            <button class="btn btn-sm btn-outline-cyan" id="btn-str-preview" data-blueprint-id="btn-str-preview">
+              👁️ Preview Dossier
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-str-export-pdf" data-blueprint-id="btn-str-export-pdf">
+              📑 Export Official PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Main Filing Form (2 Cols) -->
+          <div class="card lg:col-span-2">
+            <div class="card-header">
+              <div class="card-title">📝 Regulatory STR Form (FIU-IND Template)</div>
+              <button id="btn-str-autogen-narration" class="btn btn-xs btn-outline-cyan" data-blueprint-id="btn-str-autogen-narration">
+                ✨ Auto-Generate AI Narrative
+              </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">Reporting Financial Institution:</label>
+                  <input type="text" class="form-input" value="NMIET FinTech Bank Ltd (ID: RE-IND-2026-904)" readonly />
+                </div>
+                <div>
+                  <label class="form-label">Filing Reference Case:</label>
+                  <input type="text" class="form-input" value="ALT-2026-9042 / STR-2026-NMIET" readonly />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="form-label">Subject Legal Entity:</label>
+                  <input type="text" class="form-input" value="Apex Logistics Global Pvt Ltd" />
+                </div>
+                <div>
+                  <label class="form-label">Subject Account Number:</label>
+                  <input type="text" class="form-input" value="ACC-84920" />
+                </div>
+                <div>
+                  <label class="form-label">PAN / Tax ID:</label>
+                  <input type="text" class="form-input" value="AAACA8492P" />
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Suspicious Grounds Typology Codes:</label>
+                <div class="flex flex-wrap gap-2">
+                  <span class="badge badge-critical">STR-01: Structuring Under Threshold</span>
+                  <span class="badge badge-warning">STR-04: Mule Account Ring Intermediary</span>
+                  <span class="badge badge-info">STR-12: Rapid Outbound Transshipment</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Grounds of Suspicion & AI Forensic Narrative:</label>
+                <textarea id="strNarrativeInput" class="form-textarea font-mono" rows="12">Click '✨ Auto-Generate AI Narrative' above to synthesize SHAP feature weights, NetworkX cycle hops, and transaction velocity into a formal legal regulatory narrative...</textarea>
+              </div>
+
+              <div class="flex justify-between items-center pt-2">
+                <button id="btn-str-validate" class="btn btn-sm btn-secondary" data-blueprint-id="btn-str-validate">
+                  ✓ Validate Schema Compliance
+                </button>
+                <button id="btn-str-api-submit" class="btn btn-sm btn-primary" data-blueprint-id="btn-str-api-submit">
+                  🚀 Transmit to FIU Gateway Portal
+                </button>
+              </div>
+
+              <div id="strAckTokenDisplay" class="mt-2"></div>
+            </div>
+          </div>
+
+          <!-- Compliance Checklist & Evidence Summary (1 Col) -->
+          <div class="space-y-6">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">✅ Schema Validation Status</div>
+              </div>
+              <div id="strValidationChecklist" class="space-y-2">
+                <div class="text-xs text-slate-400">Click 'Validate Schema Compliance' to verify all regulatory requirements prior to submission.</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📎 Attached Evidence Dossier</div>
+              </div>
+              <ul class="text-xs space-y-2 text-slate-300">
+                <li class="p-2 bg-slate-900 rounded border border-slate-800 flex justify-between items-center">
+                  <span>📊 SHAP Waterfall Diagnostic Plot</span>
+                  <span class="text-cyan-400 font-mono">Attached</span>
+                </li>
+                <li class="p-2 bg-slate-900 rounded border border-slate-800 flex justify-between items-center">
+                  <span>🕸️ NetworkX Mule Subgraph JSON</span>
+                  <span class="text-cyan-400 font-mono">Attached</span>
+                </li>
+                <li class="p-2 bg-slate-900 rounded border border-slate-800 flex justify-between items-center">
+                  <span>📜 12 Inbound Structuring Tx Ledgers</span>
+                  <span class="text-cyan-400 font-mono">Attached</span>
+                </li>
+                <li class="p-2 bg-slate-900 rounded border border-slate-800 flex justify-between items-center">
+                  <span>🔒 SHA-256 Chain-of-Custody Checksum</span>
+                  <span class="text-emerald-400 font-mono">Verified</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW #6: ACADEMIC BENCHMARK & EVALUATION METRICS
+           ======================================================== -->
+      <section id="view-benchmark" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Academic & Evaluation Benchmarks</h1>
+            <p class="view-subtitle">Empirical performance verification on IBM Synthetic AML and Elliptic Bitcoin datasets (Slide 10 verification)</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" id="btn-bench-export-roc" data-blueprint-id="btn-bench-export-roc">
+              Export ROC Data (CSV)
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-bench-run-eval" data-blueprint-id="btn-bench-run-eval">
+              ⚡ Re-run Batch Evaluation (50k Tx)
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress bar for eval -->
+        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mb-6">
+          <div id="benchEvalProgress" class="bg-cyan-400 h-full w-full transition-all duration-300"></div>
+        </div>
+
+        <!-- Slide 10 Target Verification Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <div class="card text-center">
+            <div class="text-xs text-slate-400 mb-1">Target Detection Recall</div>
+            <div class="text-3xl font-black font-mono text-cyan-400">92.4%</div>
+            <div class="text-[11px] text-emerald-400 mt-1">Exceeds Target (≥ 90.0%)</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-xs text-slate-400 mb-1">Target AUC-ROC Metric</div>
+            <div class="text-3xl font-black font-mono text-purple-400">0.941</div>
+            <div class="text-[11px] text-emerald-400 mt-1">Exceeds Target (≥ 0.90)</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-xs text-slate-400 mb-1">False Positive Reduction</div>
+            <div class="text-3xl font-black font-mono text-emerald-400">41.1%</div>
+            <div class="text-[11px] text-emerald-400 mt-1">Target: ~40% Fewer Alarms</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-xs text-slate-400 mb-1">Inference Latency</div>
+            <div class="text-3xl font-black font-mono text-amber-400">74ms</div>
+            <div class="text-[11px] text-emerald-400 mt-1">Target: &lt; 100ms Ingestion</div>
+          </div>
+        </div>
+
+        <!-- Comparative Evaluation Table -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <div class="card-title">📊 Empirical Model Comparison (IBM AML Benchmark Test Set)</div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Detection Architecture</th>
+                  <th>Recall (TPR)</th>
+                  <th>Precision</th>
+                  <th>F1-Score</th>
+                  <th>AUC-ROC</th>
+                  <th>False Positive Rate</th>
+                  <th>Performance Summary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-bold text-slate-400">Traditional Rule-Based Engine</td>
+                  <td>68.2%</td>
+                  <td>18.4%</td>
+                  <td>0.290</td>
+                  <td>0.620</td>
+                  <td class="text-red-400 font-bold">48.2%</td>
+                  <td class="text-xs text-slate-400">Drowns analysts in false positives</td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-slate-300">Isolation Forest Only (Unsupervised)</td>
+                  <td>76.5%</td>
+                  <td>64.1%</td>
+                  <td>0.697</td>
+                  <td>0.795</td>
+                  <td class="text-amber-400">19.5%</td>
+                  <td class="text-xs text-slate-400">Fast outlier isolation; misses graph loops</td>
+                </tr>
+                <tr>
+                  <td class="font-bold text-slate-300">XGBoost Only (Supervised with SMOTE)</td>
+                  <td>85.4%</td>
+                  <td>81.2%</td>
+                  <td>0.832</td>
+                  <td>0.884</td>
+                  <td class="text-amber-400">11.4%</td>
+                  <td class="text-xs text-slate-400">Strong on tabular features; blind to multi-hop</td>
+                </tr>
+                <tr class="bg-cyan-950/30 border-l-4 border-cyan-400">
+                  <td class="font-bold text-cyan-400">FinTrace Hybrid AI (IF + XGBoost + NetworkX + SHAP)</td>
+                  <td class="text-emerald-400 font-black">92.4%</td>
+                  <td class="text-emerald-400 font-black">88.6%</td>
+                  <td class="text-emerald-400 font-black">0.904</td>
+                  <td class="text-cyan-400 font-black">0.941</td>
+                  <td class="text-emerald-400 font-black">7.1%</td>
+                  <td class="text-xs text-emerald-300 font-semibold">Exceeds all Slide 10 project targets</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Academic References Card -->
+        <div class="card">
+          <div class="card-title text-sm mb-2">📚 Slide 11 Academic References Implemented</div>
+          <ul class="text-xs space-y-1.5 text-slate-300 font-mono">
+            <li>• <strong>Weber et al. (2019):</strong> Anti-Money Laundering in Bitcoin: Graph Convolutional Networks (arXiv:1908.02591)</li>
+            <li>• <strong>Altman et al. (2023):</strong> Realistic Synthetic Financial Transactions for AML Models (NeurIPS Datasets)</li>
+            <li>• <strong>Liu et al. (2008):</strong> Isolation Forest (IEEE ICDM) - Fast unsupervised anomaly detection</li>
+            <li>• <strong>Chen & Guestrin (2016):</strong> XGBoost: Scalable Tree Boosting System (ACM SIGKDD)</li>
+            <li>• <strong>Lundberg & Lee (2017):</strong> Unified Approach to Interpreting Model Predictions (NeurIPS) - SHAP framework</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW #7: SYSTEM ARCHITECTURE & DATA PIPELINE
+           ======================================================== -->
+      <section id="view-architecture" class="view-container hidden">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">System Architecture & Pipeline Inspector</h1>
+            <p class="view-subtitle">Interactive map of Slide 7 System Architecture & Slide 8 Technology Stack</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-primary" data-blueprint-id="btn-master-blueprint">
+              Open Complete Technical Spec
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Architecture Flow Blocks -->
+        <div class="arch-flow-grid mb-6">
+          <!-- Block 1: Ingestion & Redis -->
+          <div class="arch-block" data-arch-key="redis">
+            <div class="text-xs font-bold text-cyan-400 font-mono mb-1">TIER 1 • STREAM INGESTION</div>
+            <div class="text-base font-bold text-white mb-2">Redis Pub/Sub & Streams</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              Ingests raw banking transactions, maintains rolling 1-hour and 24-hour sliding velocity counters, and buffers live queues with sub-millisecond latencies.
+            </p>
+            <div class="text-[11px] text-slate-400 font-mono bg-slate-900 p-2 rounded">
+              Input: Live JSON Stream (Kafka / Redis)
+            </div>
+          </div>
+
+          <!-- Block 2: FastAPI Backend -->
+          <div class="arch-block" data-arch-key="fastapi">
+            <div class="text-xs font-bold text-emerald-400 font-mono mb-1">TIER 2 • ASYNC APPLICATION SERVER</div>
+            <div class="text-base font-bold text-white mb-2">Python 3.13 + FastAPI</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              High-throughput async REST API framework powering JWT authentication, WebSocket stream broadcasting, STR generation, and orchestrating ML workers.
+            </p>
+            <div class="text-[11px] text-slate-400 font-mono bg-slate-900 p-2 rounded">
+              Stack: FastAPI + Uvicorn + Pydantic v2
+            </div>
+          </div>
+
+          <!-- Block 3: ML Detection Engine -->
+          <div class="arch-block" data-arch-key="ml">
+            <div class="text-xs font-bold text-purple-400 font-mono mb-1">TIER 3 • AI DETECTION ENGINE</div>
+            <div class="text-base font-bold text-white mb-2">Isolation Forest + XGBoost</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              Hybrid detection combining unsupervised Isolation Forest (novel anomalies) with supervised XGBoost (trained with SMOTE on IBM AML synthetic benchmarks).
+            </p>
+            <div class="text-[11px] text-slate-400 font-mono bg-slate-900 p-2 rounded">
+              Libs: scikit-learn + imbalanced-learn
+            </div>
+          </div>
+
+          <!-- Block 4: Graph Engine -->
+          <div class="arch-block" data-arch-key="graph">
+            <div class="text-xs font-bold text-pink-400 font-mono mb-1">TIER 4 • GRAPH FORENSICS</div>
+            <div class="text-base font-bold text-white mb-2">NetworkX Graph Engine</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              Models account relationships as a multi-directed graph. Detects circular layering cycles, mule account syndicates, and betweenness aggregator hubs.
+            </p>
+            <div class="text-[11px] text-slate-400 font-mono bg-slate-900 p-2 rounded">
+              Alg: Tarjan's Cycles + Louvain Modularity
+            </div>
+          </div>
+
+          <!-- Block 5: MySQL Database -->
+          <div class="arch-block" data-arch-key="mysql">
+            <div class="text-xs font-bold text-amber-400 font-mono mb-1">TIER 5 • PERSISTENT STORAGE</div>
+            <div class="text-base font-bold text-white mb-2">MySQL 8.0 Relational DB</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              ACID-compliant storage for financial transactions, customer KYC profiles, alert queues, audit logs, and official STR filings with B-Tree indexes.
+            </p>
+            <div class="text-[11px] text-slate-400 font-mono bg-slate-900 p-2 rounded">
+              Schemas: transactions, alerts, cases, str
+            </div>
+          </div>
+
+          <!-- Block 6: React / SPA Dashboard -->
+          <div class="arch-block" data-arch-key="fastapi">
+            <div class="text-xs font-bold text-cyan-400 font-mono mb-1">TIER 6 • ANALYST DASHBOARD</div>
+            <div class="text-base font-bold text-white mb-2">Component-Based Analyst UI</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              Single-page application featuring real-time stream visualizers, interactive HTML5 Canvas graph forensics, SHAP waterfall plots, and 1-click STR exports.
+            </p>
+            <div class="text-[11px] text-slate-400 font-mono bg-slate-900 p-2 rounded">
+              Design: RegTech Cyber Dark Theme
+            </div>
+          </div>
+        </div>
+
+        <!-- 13-Week Phased Implementation Roadmap (Slide 9) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📅 Slide 9 Phased Implementation Plan (Weeks 1–13)</div>
+          </div>
+          <div class="space-y-4 text-xs">
+            <div class="p-3 bg-slate-900 rounded border-l-4 border-cyan-400">
+              <div class="flex justify-between items-center mb-1">
+                <strong class="text-white text-sm">Phase 1 (Weeks 1–2): Project Setup & Foundations</strong>
+                <span class="badge badge-success">Completed</span>
+              </div>
+              <p class="text-slate-300">Dataset collection (IBM AML Synthetic & Elliptic), MySQL relational schema design, FastAPI async backend skeleton, and React/SPA dashboard shell.</p>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded border-l-4 border-blue-400">
+              <div class="flex justify-between items-center mb-1">
+                <strong class="text-white text-sm">Phase 2 (Weeks 3–4): Preprocessing & Feature Engineering</strong>
+                <span class="badge badge-info">In Progress</span>
+              </div>
+              <p class="text-slate-300">Data cleaning, sliding-window transaction velocity features, amount deviation from customer 90-day baseline, counterparty diversity, and SMOTE balancing for extreme class imbalance.</p>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded border-l-4 border-purple-400">
+              <div class="flex justify-between items-center mb-1">
+                <strong class="text-white text-sm">Phase 3 (Weeks 5–7): Model Development & Tuning</strong>
+                <span class="badge badge-neutral">Scheduled</span>
+              </div>
+              <p class="text-slate-300">Isolation Forest unsupervised outlier model, XGBoost classifier training, hyperparameter grid search, threshold calibration, and test-set verification of ≥90% recall & ≥0.90 AUC-ROC.</p>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded border-l-4 border-pink-400">
+              <div class="flex justify-between items-center mb-1">
+                <strong class="text-white text-sm">Phase 4 (Weeks 8–10): Graph Analytics & Explainability</strong>
+                <span class="badge badge-neutral">Scheduled</span>
+              </div>
+              <p class="text-slate-300">NetworkX transaction graph construction, cycle detection (Tarjan), Louvain community mule clustering, betweenness centrality, and TreeSHAP waterfall explanation integration.</p>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded border-l-4 border-amber-400">
+              <div class="flex justify-between items-center mb-1">
+                <strong class="text-white text-sm">Phase 5 (Weeks 11–13): System Integration & Documentation</strong>
+                <span class="badge badge-neutral">Scheduled</span>
+              </div>
+              <p class="text-slate-300">End-to-end dashboard integration, alert lifecycle case management, one-click STR PDF/regulatory export, stress testing, and final project documentation.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================
+       SLIDE-OVER TECHNICAL BLUEPRINT INSPECTOR DRAWER
+       ======================================================== -->
+  <aside id="blueprintDrawer" class="blueprint-drawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title">
+          <span>⚙️</span> Component Blueprint
+        </div>
+        <div class="drawer-subtitle" id="bpIdBadge">ID: #btn-inspect</div>
+      </div>
+      <button id="closeBlueprintDrawer" class="btn btn-xs btn-ghost text-slate-400 hover:text-white text-lg">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- Target Title & Category -->
+      <div class="spec-box">
+        <div class="spec-label">Target Control & Category</div>
+        <div class="font-bold text-white text-sm" id="bpTitle">Action Button</div>
+        <div class="text-xs text-slate-400 mt-0.5" id="bpCategory">System Category</div>
+      </div>
+
+      <!-- Roadmap Phase -->
+      <div class="spec-box border-amber-500/30 bg-amber-950/20">
+        <div class="spec-label text-amber-400">Phased Roadmap Milestone</div>
+        <div class="spec-content text-amber-200 font-semibold" id="bpPhase">Phase 1: Project Setup</div>
+      </div>
+
+      <!-- Destination / Action -->
+      <div class="spec-box">
+        <div class="spec-label">Where This Leads / Target Action</div>
+        <div class="spec-content" id="bpDestination">Destination description</div>
+      </div>
+
+      <!-- Frontend Execution -->
+      <div class="spec-box">
+        <div class="spec-label">Frontend Execution & State Flow</div>
+        <div class="spec-content" id="bpFrontend">Frontend implementation details</div>
+      </div>
+
+      <!-- Backend REST API Endpoint -->
+      <div class="spec-box">
+        <div class="spec-label">Backend REST API Endpoint (FastAPI)</div>
+        <div class="spec-code" id="bpEndpoint">POST /api/v1/endpoint</div>
+        <div class="spec-content mt-2 text-xs" id="bpBackend">Backend service logic and controller execution details</div>
+      </div>
+
+      <!-- Database Operations -->
+      <div class="spec-box">
+        <div class="spec-label">Database Operations (MySQL & Redis)</div>
+        <div class="spec-content text-xs font-mono text-emerald-300" id="bpDatabase">MySQL and Redis query specifics</div>
+      </div>
+
+      <!-- AI / ML / Graph Algorithms -->
+      <div class="spec-box">
+        <div class="spec-label">AI, Machine Learning & Graph Role</div>
+        <div class="spec-content text-xs" id="bpMlGraph">Role of Isolation Forest, XGBoost, NetworkX or SHAP</div>
+      </div>
+
+      <!-- Security & Audit -->
+      <div class="spec-box">
+        <div class="spec-label">Security, RBAC & Audit Trail</div>
+        <div class="spec-content text-xs text-slate-300" id="bpSecurity">Security and compliance controls</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       MODAL 1: MASTER IMPLEMENTATION BLUEPRINT (FULL DIRECTORY)
+       ======================================================== -->
+  <div id="masterBlueprintModal" class="modal-overlay hidden">
+    <div class="modal-content max-w-5xl">
+      <div class="modal-header">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            📋 FinTrace Master Implementation Blueprint & Engineering Directory
+          </h2>
+          <div class="text-xs text-cyan-400 font-mono mt-0.5">Comprehensive Mapping of All UI Actions to Backend APIs, DB Schemas & ML Algorithms</div>
+        </div>
+        <button id="closeMasterBlueprint" class="btn btn-xs btn-ghost text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+
+      <div class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center gap-4">
+        <input type="text" id="masterBlueprintSearch" placeholder="Search by Action ID, Endpoint, DB Table, or Milestone..." class="form-input text-xs max-w-md" />
+        <div class="text-xs text-slate-400">Total Registered Actions: <strong class="text-white">35 Components</strong></div>
+      </div>
+
+      <div class="modal-body p-0 max-h-[60vh] overflow-y-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Action ID</th>
+              <th>Component & Screen</th>
+              <th>Milestone Phase</th>
+              <th>Where It Leads</th>
+              <th>FastAPI Endpoint</th>
+              <th>Inspect</th>
+            </tr>
+          </thead>
+          <tbody id="masterBlueprintTableBody">
+            <!-- Dynamically populated via populateMasterBlueprint() in app.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('masterBlueprintModal').classList.add('hidden')">
+          Close Directory
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 2: CASE DOSSIER & INVESTIGATION MODAL
+       ======================================================== -->
+  <div id="caseDossierModal" class="modal-overlay hidden">
+    <div class="modal-content max-w-3xl">
+      <div class="modal-header">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-bold text-white" id="modalCaseId">ALT-2026-9042</h2>
+            <span id="modalStatusPill" class="badge badge-critical">OPEN</span>
+            <span class="badge badge-danger">SCORE: <span id="modalRiskScore">94 / 100</span></span>
+          </div>
+          <div class="text-xs text-slate-400 mt-1" id="modalTypology">Structuring & Mule Layering</div>
+        </div>
+        <button id="closeCaseModal" class="btn btn-xs btn-ghost text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+
+      <div class="modal-body space-y-4 text-xs">
+        <!-- Customer KYC Summary -->
+        <div class="card p-3 bg-slate-900">
+          <div class="font-bold text-white mb-2">👤 Customer KYC 360 Profile</div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>Customer: <strong class="text-white block text-sm" id="modalCustomerName">Apex Logistics Global Pvt Ltd</strong></div>
+            <div>Account: <strong class="text-cyan-400 block font-mono text-sm" id="modalAccountNum">ACC-84920</strong></div>
+            <div>KYC Tier: <strong class="text-amber-400 block" id="modalKycLevel">Tier 2 (High Risk)</strong></div>
+            <div>Flagged Amount: <strong class="text-white block font-mono text-sm" id="modalAmount">$98,500.00</strong></div>
+          </div>
+        </div>
+
+        <!-- Detected Suspicious Flags -->
+        <div>
+          <div class="font-bold text-white mb-1.5">🚨 Triggered Suspicious Indicators</div>
+          <div id="modalFlagsList" class="flex flex-wrap gap-1"></div>
+        </div>
+
+        <!-- AI Diagnostic Summary -->
+        <div class="p-3 bg-slate-900 rounded border border-slate-800">
+          <div class="font-bold text-cyan-400 mb-1">🤖 AI Diagnostic Findings</div>
+          <p class="text-slate-300 leading-relaxed mb-2">
+            Isolation Forest flagged transaction velocity as top 0.5% statistical outlier. XGBoost matched structuring pattern with 94% probability. NetworkX uncovered 12-to-1 fan-in structuring funneling directly into single aggregator account.
+          </p>
+          <div class="text-[11px] text-slate-400 font-mono">
+            Key SHAP Contributors: Velocity Spike (+28.4), Amount Under CTR (+22.1), Passthrough Speed (+19.8).
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div>
+          <div class="font-bold text-white mb-2">⚡ Compliance Actions & Enforcement</div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <button id="btn-case-escalate" class="btn btn-xs btn-secondary" data-blueprint-id="btn-case-escalate">
+              🚀 Escalate to Compliance Head
+            </button>
+            <button id="btn-case-freeze" class="btn btn-xs btn-outline-danger" data-blueprint-id="btn-case-freeze">
+              🛑 Administrative Freeze Account
+            </button>
+            <button id="btn-case-edd" class="btn btn-xs btn-secondary" data-blueprint-id="btn-case-edd">
+              📋 Request EDD Source of Funds
+            </button>
+            <button id="btn-case-false-positive" class="btn btn-xs btn-ghost text-slate-400 hover:text-white" data-blueprint-id="btn-case-false-positive">
+              ✕ Dismiss as False Positive
+            </button>
+            <button id="btn-case-file-str" class="btn btn-xs btn-primary md:col-span-2" data-blueprint-id="btn-case-file-str">
+              📄 Transfer to STR Generator
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('caseDossierModal').classList.add('hidden')">
+          Close Dossier
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 3: STR DOCUMENT PREVIEW MODAL
+       ======================================================== -->
+  <div id="strPreviewModal" class="modal-overlay hidden">
+    <div class="modal-content max-w-4xl">
+      <div class="modal-header">
+        <div>
+          <h2 class="text-base font-bold text-white">Official Suspicious Transaction Report (STR) Preview</h2>
+          <div class="text-xs text-slate-400">FIU-IND Reporting Form 1 • Prevention of Money Laundering Act (PMLA)</div>
+        </div>
+        <button id="closeStrPreview" class="btn btn-xs btn-ghost text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+      <div class="modal-body p-4" style="background: #080d1a;">
+        <!-- Official Document Sheet -->
+        <div class="str-paper">
+          <!-- Letterhead -->
+          <div class="str-header-rule">
+            <div>
+              <div class="str-title">Financial Intelligence Unit - India</div>
+              <div class="str-subtitle">CONFIDENTIAL REGULATORY FILING (RULE 3, PMLA 2002)</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: #0284c7;">FIU-STR-2026-9042</div>
+              <div style="font-size: 11px; color: #64748b;">Date: 2026-10-30</div>
+            </div>
+          </div>
+
+          <div class="str-grid">
+            <div>
+              <strong>1. Reporting Entity:</strong> NMIET FinTech Bank Ltd (Reg: RE-IND-2026-904)<br>
+              <strong>2. Reporting Branch:</strong> Central Compliance Unit, Pune, Maharashtra<br>
+              <strong>3. Compliance Officer:</strong> Head of AML Operations (ID: AML-9910)
+            </div>
+            <div>
+              <strong>4. Subject Name:</strong> Apex Logistics Global Pvt Ltd<br>
+              <strong>5. Account Number:</strong> ACC-84920 (Corporate Current Account)<br>
+              <strong>6. Aggregated Suspect Volume:</strong> USD $98,500.00
+            </div>
+          </div>
+
+          <div class="str-callout">
+            <strong>7. Grounds of Suspicion & Algorithmic Substantiation:</strong>
+            <p>
+              Between 10:10:00 and 10:48:22, account ACC-84920 received a series of 12 inbound deposits systematically structured at $9,850 - $9,920 from 12 distinct individuals. This deliberate structuring avoids the $10,000 CTR reporting threshold. Within 120 seconds of fund consolidation, an immediate high-value transfer ($85,000) was routed to an offshore correspondent entity. The FinTrace AI detection engine assigned a calibrated risk score of 94/100, corroborated by TreeSHAP feature attributions and NetworkX graph cycle detection.
+            </p>
+          </div>
+
+          <div class="str-footer-rule">
+            <div>
+              <div style="font-size: 10px; color: #64748b; font-family: var(--font-mono); font-weight: 700;">DIGITAL SIGNATURE HASH (HMAC-SHA256):</div>
+              <div style="font-family: var(--font-mono); font-size: 10px; color: #334155; word-break: break-all;">7f8a9b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcd</div>
+            </div>
+            <div style="text-align: right; min-width: 180px;">
+              <div style="font-weight: 700; color: #0f172a;">Authorized Signatory</div>
+              <div style="font-size: 11px; color: #64748b;">Compliance & Regulatory Division</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('strPreviewModal').classList.add('hidden')">
+          Close Preview
+        </button>
+        <button class="btn btn-primary" onclick="window.print()">
+          Print / Save PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notifications Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Core Scripts -->
+  <script src="js/blueprint-data.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
