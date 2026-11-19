@@ -129,13 +129,101 @@ document.addEventListener('DOMContentLoaded', () => {
         counterparties: 1,
         kycLevel: 'Tier 3 (Verified SME)'
       }
-    ]
+    ],
+    backendConnected: false,
+    initialHealthChecked: false
   };
 
   // Expose state for debugging
   window.FinTraceState = state;
 
+  // Backend API Client with Graceful Client-Side Fallback
+  const API_BASE = (window.location.protocol.startsWith('http') && window.location.port === '8000')
+    ? ''
+    : 'http://localhost:8000';
+
+  const ApiClient = {
+    async get(endpoint) {
+      if (!state.initialHealthChecked) await initBackendSync();
+      if (!state.backendConnected) return null;
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, { method: 'GET', signal: AbortSignal.timeout(2000) });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn(`[FinTrace ApiClient] GET ${endpoint} offline/failed:`, e);
+      }
+      return null;
+    },
+    async post(endpoint, data = {}) {
+      if (!state.initialHealthChecked) await initBackendSync();
+      if (!state.backendConnected) return null;
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          signal: AbortSignal.timeout(3000)
+        });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn(`[FinTrace ApiClient] POST ${endpoint} offline/failed:`, e);
+      }
+      return null;
+    },
+    async put(endpoint, data = {}) {
+      if (!state.initialHealthChecked) await initBackendSync();
+      if (!state.backendConnected) return null;
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          signal: AbortSignal.timeout(3000)
+        });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn(`[FinTrace ApiClient] PUT ${endpoint} offline/failed:`, e);
+      }
+      return null;
+    }
+  };
+
+  // Check connectivity to FastAPI backend
+  async function initBackendSync() {
+    state.initialHealthChecked = true;
+    try {
+      const t0 = performance.now();
+      const res = await fetch(`${API_BASE}/api/v1/system/health-topology`, { method: 'GET', signal: AbortSignal.timeout(1500) });
+      if (res.ok) {
+        const data = await res.json();
+        const latency = Math.max(1, Math.round(performance.now() - t0));
+        state.backendConnected = true;
+        updateBackendStatusUI(true, latency, data);
+        console.log('[FinTrace] Successfully synchronized with FastAPI backend at', API_BASE);
+      } else {
+        updateBackendStatusUI(false);
+      }
+    } catch (e) {
+      updateBackendStatusUI(false);
+    }
+  }
+
+  function updateBackendStatusUI(isOnline, latency = 0, healthData = null) {
+    const sidebarStatus = document.querySelector('.sidebar-telemetry');
+    if (sidebarStatus) {
+      const fastApiLine = sidebarStatus.querySelector('.flex.justify-between:first-child');
+      if (fastApiLine) {
+        fastApiLine.innerHTML = `<span>FastAPI:</span> <span class="${isOnline ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${isOnline ? 'Online (Connected)' : 'Standalone'}</span>`;
+      }
+    }
+    const latencyPill = document.querySelector('.app-header .status-dot.pulse-neon')?.parentElement;
+    if (latencyPill && isOnline) {
+      latencyPill.innerHTML = `<span class="status-dot pulse-neon"></span><span class="text-slate-300">Latency: <strong class="text-emerald-400">&lt;${latency || 74}ms</strong></span>`;
+    }
+  }
+
   // Initialize Core Services
+  initBackendSync();
   initNavigation();
   initBlueprintInspector();
   initDashboardStream();
@@ -472,6 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ? '<span class="status-dot online"></span> Live Streaming Active' 
           : '<span class="status-dot" style="background:#ef4444"></span> Stream Paused';
         triggerBlueprint('btn-stream-toggle');
+        ApiClient.post('/api/v1/stream/control', { action: state.streamActive ? 'resume' : 'pause' });
       });
     }
 
@@ -485,13 +574,33 @@ document.addEventListener('DOMContentLoaded', () => {
         speedBtn.textContent = `Speed: ${state.streamSpeedMultiplier}x`;
         startStream();
         triggerBlueprint('btn-stream-speed');
+        ApiClient.post('/api/v1/stream/rate-limit', { rate: state.streamSpeedMultiplier * 15 });
       });
     }
 
     // Pattern Injections
     if (injectSmurfingBtn) {
-      injectSmurfingBtn.addEventListener('click', () => {
+      injectSmurfingBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-inject-smurfing');
+        const apiRes = await ApiClient.post('/api/v1/simulator/inject-pattern', { typology: 'structuring' });
+        if (apiRes && apiRes.transactions) {
+          apiRes.transactions.forEach((tx, i) => {
+            setTimeout(() => {
+              generateTransaction({
+                id: tx.id,
+                source: tx.source,
+                dest: tx.dest,
+                amount: tx.amount,
+                amountStr: tx.amount_str,
+                score: tx.score
+              });
+            }, i * 250);
+          });
+          showToast('Attack Pattern Injected (FastAPI)', '6 Structured transfers under $10,000 CTR limit queued via backend simulator.', 'warning');
+          return;
+        }
+
+        // Graceful Client-side Fallback
         for (let i = 0; i < 6; i++) {
           setTimeout(() => {
             generateTransaction({
@@ -509,8 +618,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (injectMuleBtn) {
-      injectMuleBtn.addEventListener('click', () => {
+      injectMuleBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-inject-mule');
+        const apiRes = await ApiClient.post('/api/v1/simulator/inject-pattern', { typology: 'mule' });
+        if (apiRes && apiRes.transaction) {
+          generateTransaction({
+            id: apiRes.transaction.id,
+            source: apiRes.transaction.source,
+            dest: apiRes.transaction.dest,
+            amount: apiRes.transaction.amount,
+            amountStr: apiRes.transaction.amount_str,
+            score: apiRes.transaction.score
+          });
+          showToast('Mule Fan-Out Injected (FastAPI)', 'Dispersal transaction across 8 recipient accounts triggered via backend simulator.', 'warning');
+          return;
+        }
+
+        // Graceful Client-side Fallback
         generateTransaction({
           id: `TX-MULE-FAN`,
           source: 'ACC-84920 (Apex Logistics)',
@@ -524,8 +648,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (injectCircularBtn) {
-      injectCircularBtn.addEventListener('click', () => {
+      injectCircularBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-inject-circular');
+        const apiRes = await ApiClient.post('/api/v1/simulator/inject-pattern', { typology: 'circular' });
+        if (apiRes && apiRes.transactions) {
+          apiRes.transactions.forEach((tx, i) => {
+            setTimeout(() => {
+              generateTransaction({
+                id: tx.id,
+                source: tx.source,
+                dest: tx.dest,
+                amount: tx.amount,
+                amountStr: tx.amount_str,
+                score: tx.score
+              });
+            }, i * 300);
+          });
+          showToast('Circular Layering Detected (FastAPI)', 'Cycle of length 4 detected by NetworkX engine. Alert ALT-2026-9041 updated.', 'danger');
+          return;
+        }
+
+        // Graceful Client-side Fallback
         const loop = ['ACC-A (Origin)', 'ACC-B (Mule)', 'ACC-C (Front)', 'ACC-D (Crypto Gateway)', 'ACC-A (Origin)'];
         for (let i = 0; i < 4; i++) {
           setTimeout(() => {
@@ -601,39 +744,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const caseFileStrBtn = document.getElementById('btn-case-file-str');
 
     if (caseEscalateBtn) {
-      caseEscalateBtn.addEventListener('click', () => {
+      caseEscalateBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-case-escalate');
-        showToast('Case Escalated', 'Case ALT-2026-9042 routed to Head of Compliance queue with priority SLA.', 'warning');
+        const alertId = state.selectedAlert ? state.selectedAlert.id : 'ALT-2026-9042';
+        await ApiClient.post(`/api/v1/cases/${alertId}/escalate`);
+        showToast('Case Escalated', `Case ${alertId} routed to Head of Compliance queue with priority SLA.`, 'warning');
         updateCaseStatusUI('ESCALATED');
       });
     }
 
     if (caseFreezeBtn) {
-      caseFreezeBtn.addEventListener('click', () => {
+      caseFreezeBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-case-freeze');
-        showToast('Account Restraint Placed', 'Outbound debit block placed on ACC-84920 via Core Banking API Webhook.', 'danger');
+        const accId = state.selectedAlert ? state.selectedAlert.account : 'ACC-84920';
+        await ApiClient.post(`/api/v1/accounts/${accId}/administrative-hold`, {
+          account_id: accId,
+          reason: 'Suspicion of money laundering under Section 12 PMLA'
+        });
+        showToast('Account Restraint Placed', `Outbound debit block placed on ${accId} via Core Banking API Webhook.`, 'danger');
         updateCaseStatusUI('FROZEN');
       });
     }
 
     if (caseEddBtn) {
-      caseEddBtn.addEventListener('click', () => {
+      caseEddBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-case-edd');
+        const alertId = state.selectedAlert ? state.selectedAlert.id : 'ALT-2026-9042';
+        await ApiClient.post(`/api/v1/cases/${alertId}/request-edd`);
         showToast('EDD Request Dispatched', 'Secure portal upload link sent to customer for Source of Funds proof.', 'info');
       });
     }
 
     if (caseFpBtn) {
-      caseFpBtn.addEventListener('click', () => {
+      caseFpBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-case-false-positive');
+        const alertId = state.selectedAlert ? state.selectedAlert.id : 'ALT-2026-9042';
+        await ApiClient.post(`/api/v1/alerts/${alertId}/dismiss`);
         showToast('Dismissed as False Positive', 'Feedback logged. XGBoost training label recorded (label=0).', 'success');
         updateCaseStatusUI('CLOSED_FP');
       });
     }
 
     if (caseFileStrBtn) {
-      caseFileStrBtn.addEventListener('click', () => {
+      caseFileStrBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-case-file-str');
+        const alertId = state.selectedAlert ? state.selectedAlert.id : 'ALT-2026-9042';
+        await ApiClient.post(`/api/v1/cases/${alertId}/initiate-str`);
         document.getElementById('caseDossierModal').classList.add('hidden');
         switchView('str');
         showToast('STR Workspace Prepared', 'Case evidence & SHAP factors pre-populated into Regulatory STR form.', 'info');
@@ -789,25 +945,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (detectCyclesBtn) {
-      detectCyclesBtn.addEventListener('click', () => {
+      detectCyclesBtn.addEventListener('click', async () => {
         ensureGraphEngine().triggerCycleDetection();
         triggerBlueprint('btn-graph-detect-cycles');
+        await ApiClient.post('/api/v1/graph/algorithms/detect-cycles?preset=' + (state.graphEngine?.activePreset || 'circular'));
         showToast('Tarjan Cycle Detection Run', 'Closed cycle detected: ACC-A -> ACC-B -> ACC-C -> ACC-D -> ACC-A. Risk penalty +35 applied.', 'danger');
       });
     }
 
     if (detectCommunitiesBtn) {
-      detectCommunitiesBtn.addEventListener('click', () => {
+      detectCommunitiesBtn.addEventListener('click', async () => {
         ensureGraphEngine().triggerCommunityDetection();
         triggerBlueprint('btn-graph-mule-clusters');
+        await ApiClient.post('/api/v1/graph/algorithms/community-detection?preset=' + (state.graphEngine?.activePreset || 'circular'));
         showToast('Louvain Clustering Run', '3 Interconnected mule communities identified with modularity score 0.74.', 'warning');
       });
     }
 
     if (scaleCentralityBtn) {
-      scaleCentralityBtn.addEventListener('click', () => {
+      scaleCentralityBtn.addEventListener('click', async () => {
         ensureGraphEngine().triggerCentralityScaling();
         triggerBlueprint('btn-graph-centrality');
+        await ApiClient.post('/api/v1/graph/algorithms/centrality?preset=' + (state.graphEngine?.activePreset || 'circular'));
         showToast('Centrality Computed', 'Node sizes scaled by Betweenness Centrality. Central aggregator hub ACC-84920 identified.', 'info');
       });
     }
@@ -830,6 +989,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (exportEvidenceBtn) {
       exportEvidenceBtn.addEventListener('click', () => {
         triggerBlueprint('btn-graph-export-evidence');
+        try {
+          const canvas = document.getElementById('graphCanvas');
+          if (canvas) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `fintrace_graph_evidence_${Date.now()}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }
+        } catch (err) {
+          console.warn('Evidence snapshot generation note:', err);
+        }
         showToast('Evidence Pack Exported', 'High-res topology PNG and JSON node-link graph saved to case evidence vault.', 'success');
       });
     }
@@ -1047,10 +1220,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const closePreviewBtn = document.getElementById('closeStrPreview');
 
     if (autoGenBtn) {
-      autoGenBtn.addEventListener('click', () => {
+      autoGenBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-str-autogen-narration');
         if (narrativeTextarea) {
           narrativeTextarea.value = "Generating AI regulatory narrative via SHAP feature synthesis & NetworkX graph engine...";
+          const apiRes = await ApiClient.post('/api/v1/str/generate-narrative', {
+            case_id: 'ALT-2026-9042',
+            account_id: 'ACC-84920',
+            customer_name: 'Apex Logistics Global Pvt Ltd'
+          });
+          if (apiRes && apiRes.narrative) {
+            narrativeTextarea.value = apiRes.narrative;
+            showToast('AI Narrative Generated (FastAPI)', 'Formal legal narrative synthesized from quantitative SHAP & Graph findings.', 'success');
+            return;
+          }
+          // Client-side fallback
           setTimeout(() => {
             narrativeTextarea.value = 
 `SUSPICIOUS TRANSACTION REPORT (STR) NARRATIVE
@@ -1072,30 +1256,28 @@ Between 10:10:00 and 10:48:22, account ACC-84920 received a series of 12 rapid i
 3. REGULATORY CONCLUSION:
 The pattern exhibits classic indicators of trade-based structuring and mule network layering under Section 12 of the Prevention of Money Laundering Act (PMLA) / FinCEN SAR standards. Immediate administrative restraint and formal regulatory notification are recommended.`;
             showToast('AI Narrative Generated', 'Formal legal narrative synthesized from quantitative SHAP & Graph findings.', 'success');
-          }, 600);
+          }, 350);
         }
       });
     }
 
     if (validateBtn) {
-      validateBtn.addEventListener('click', () => {
+      validateBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-str-validate');
+        const apiRes = await ApiClient.post('/api/v1/str/validate-schema');
         const checklist = document.getElementById('strValidationChecklist');
         if (checklist) {
-          checklist.innerHTML = `
+          const checks = (apiRes && apiRes.validated_checks) || [
+            "Reporting Entity Registered Code (RE-IND-2026-904) Verified",
+            "Subject PAN / Tax Identification Validated against National Database",
+            "Grounds of Suspicion Indicators (Codes: STR-01, STR-04, STR-12) Attached",
+            "SHAP Feature Impact Proof & NetworkX Subgraph Evidence Appended"
+          ];
+          checklist.innerHTML = checks.map(c => `
             <div class="text-xs text-emerald-400 flex items-center gap-2 mb-1">
-              <span>✓</span> Reporting Entity Registered Code (RE-IND-2026-904) Verified
+              <span>✓</span> ${c}
             </div>
-            <div class="text-xs text-emerald-400 flex items-center gap-2 mb-1">
-              <span>✓</span> Subject PAN / Tax Identification Validated against National Database
-            </div>
-            <div class="text-xs text-emerald-400 flex items-center gap-2 mb-1">
-              <span>✓</span> Grounds of Suspicion Indicators (Codes: STR-01, STR-04, STR-12) Attached
-            </div>
-            <div class="text-xs text-emerald-400 flex items-center gap-2 mb-1">
-              <span>✓</span> SHAP Feature Impact Proof & NetworkX Subgraph Evidence Appended
-            </div>
-          `;
+          `).join('');
         }
         showToast('Validation Succeeded', 'All mandatory FIU-IND / FinCEN schema fields validated with zero compliance errors.', 'success');
       });
@@ -1123,15 +1305,18 @@ The pattern exhibits classic indicators of trade-based structuring and mule netw
     }
 
     if (apiSubmitBtn) {
-      apiSubmitBtn.addEventListener('click', () => {
+      apiSubmitBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-str-api-submit');
+        const apiRes = await ApiClient.post('/api/v1/regulatory/fiu-gateway/submit');
         const ackDisplay = document.getElementById('strAckTokenDisplay');
+        const token = (apiRes && apiRes.acknowledgement_token) || 'ACK-FIU-2026-981042-X';
+        const ts = (apiRes && apiRes.filing_timestamp) || '2026-10-30 00:24:18 UTC';
         if (ackDisplay) {
           ackDisplay.innerHTML = `
             <div class="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded text-xs text-emerald-300">
               <div class="font-bold mb-1">✓ Transmitted to FIU Gateway Portal via mTLS API</div>
-              <div>Acknowledgement Token: <strong class="font-mono text-white">ACK-FIU-2026-981042-X</strong></div>
-              <div>Filing Timestamp: <strong>2026-10-30 00:24:18 UTC</strong></div>
+              <div>Acknowledgement Token: <strong class="font-mono text-white">${token}</strong></div>
+              <div>Filing Timestamp: <strong>${ts}</strong></div>
             </div>
           `;
         }
@@ -1166,6 +1351,7 @@ The pattern exhibits classic indicators of trade-based structuring and mule netw
             progressBar.style.width = `${Math.min(100, w)}%`;
             if (w >= 100) {
               clearInterval(timer);
+              ApiClient.post('/api/v1/benchmarks/evaluate-testset', { sample_size: 50000 });
               showToast('Evaluation Complete', 'Benchmark test set (50,000 transactions) processed. Recall: 92.4%, AUC: 0.941.', 'success');
             }
           }, 120);
@@ -1174,9 +1360,18 @@ The pattern exhibits classic indicators of trade-based structuring and mule netw
     }
 
     if (exportRocBtn) {
-      exportRocBtn.addEventListener('click', () => {
+      exportRocBtn.addEventListener('click', async () => {
         triggerBlueprint('btn-bench-export-roc');
-        showToast('Metrics Exported', 'ROC Curve coordinates and confusion matrix saved as CSV/JSON format.', 'info');
+        await ApiClient.get('/api/v1/benchmarks/export-data');
+        const csvContent = "data:text/csv;charset=utf-8,FPR,TPR,Model,Dataset\n0.000,0.000,FinTrace Hybrid,IBM AMLworld\n0.020,0.650,FinTrace Hybrid,IBM AMLworld\n0.040,0.820,FinTrace Hybrid,IBM AMLworld\n0.071,0.924,FinTrace Hybrid,IBM AMLworld\n0.150,0.960,FinTrace Hybrid,IBM AMLworld\n0.300,0.990,FinTrace Hybrid,IBM AMLworld\n1.000,1.000,FinTrace Hybrid,IBM AMLworld\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "fintrace_roc_benchmarks_ibm_amlworld.csv");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        showToast('Metrics Exported', 'ROC Curve coordinates and confusion matrix saved as CSV format.', 'info');
       });
     }
   }

@@ -863,14 +863,166 @@
 
         <!-- Academic References Card -->
         <div class="card">
-          <div class="card-title text-sm mb-2">📚 Slide 11 Academic References Implemented</div>
-          <ul class="text-xs space-y-1.5 text-slate-300 font-mono">
-            <li>• <strong>Weber et al. (2019):</strong> Anti-Money Laundering in Bitcoin: Graph Convolutional Networks (arXiv:1908.02591)</li>
-            <li>• <strong>Altman et al. (2023):</strong> Realistic Synthetic Financial Transactions for AML Models (NeurIPS Datasets)</li>
-            <li>• <strong>Liu et al. (2008):</strong> Isolation Forest (IEEE ICDM) - Fast unsupervised anomaly detection</li>
-            <li>• <strong>Chen & Guestrin (2016):</strong> XGBoost: Scalable Tree Boosting System (ACM SIGKDD)</li>
-            <li>• <strong>Lundberg & Lee (2017):</strong> Unified Approach to Interpreting Model Predictions (NeurIPS) - SHAP framework</li>
-          </ul>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div class="card-title text-base">📚 Academic References Implemented — State-of-the-Art & Foundational (2008–2026)</div>
+            <span class="badge badge-info text-xs">11 Peer-Reviewed & Pre-Print Citations</span>
+          </div>
+
+          <!-- Section 1: 2024-2026 State-of-the-Art AML Research -->
+          <div class="mb-4">
+            <div class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2 flex items-center gap-1.5">
+              <span>🚀</span> State-of-the-Art AML Research (2024–2026)
+            </div>
+            <div class="space-y-2.5 text-xs">
+              <div class="p-2.5 bg-slate-900/80 rounded border border-slate-800 hover:border-cyan-500/50 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                  <div>
+                    <strong class="text-white">Blanuša et al. (2024):</strong>
+                    <span class="text-slate-300 italic">Graph Feature Preprocessor: Real-time Subgraph-based Feature Extraction for Financial Crime Detection</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge badge-info text-[10px]">ACM ICAIF 2024</span>
+                    <a href="https://arxiv.org/abs/2402.08593" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">arXiv:2402.08593 ↗</a>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">
+                  Streaming fan-in/fan-out, scatter-gather, and cycle feature extraction feeding XGBoost (+46% minority F1). Directly inspires FinTrace's real-time Graph Feature Preprocessor (GFP) module.
+                </p>
+              </div>
+
+              <div class="p-2.5 bg-slate-900/80 rounded border border-slate-800 hover:border-cyan-500/50 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                  <div>
+                    <strong class="text-white">Egressy et al. (2024):</strong>
+                    <span class="text-slate-300 italic">Provably Powerful Graph Neural Networks for Directed Multigraphs</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge badge-info text-[10px]">AAAI 2024</span>
+                    <a href="https://ojs.aaai.org/index.php/AAAI/article/view/29069" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">AAAI ↗</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="https://arxiv.org/abs/2306.11586" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">arXiv:2306.11586 ↗</a>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">
+                  Formulates directed multigraph cycle, scatter-gather, and ego-ID detection (+30% minority F1) to prevent information loss on temporal directed bank transfer graphs.
+                </p>
+              </div>
+
+              <div class="p-2.5 bg-slate-900/80 rounded border border-slate-800 hover:border-cyan-500/50 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                  <div>
+                    <strong class="text-white">Lin et al. (2024):</strong>
+                    <span class="text-slate-300 italic">FraudGT: A Simple, Effective, and Efficient Graph Transformer for Financial Fraud Detection</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge badge-info text-[10px]">MIT 2024</span>
+                    <a href="https://jshun.csail.mit.edu/FraudGT.pdf" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">MIT PDF ↗</a>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">
+                  Introduces edge-attribute attention on directed transaction multigraphs, capturing multi-currency and temporal transaction attributes without graph over-smoothing.
+                </p>
+              </div>
+
+              <div class="p-2.5 bg-slate-900/80 rounded border border-slate-800 hover:border-cyan-500/50 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                  <div>
+                    <strong class="text-white">Li et al. (2025):</strong>
+                    <span class="text-slate-300 italic">LineMVGNN: Anti-Money Laundering with Line-Graph-Assisted Multi-View Graph Neural Networks</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge badge-info text-[10px]">MDPI AI 2025</span>
+                    <a href="https://www.mdpi.com/2673-2688/6/4/69" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">MDPI ↗</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="https://arxiv.org/html/2603.23584v1" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">arXiv:2603.23584 ↗</a>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">
+                  Employs bidirectional message passing and dual line-graph path patterns to detect transaction-level laundering paths alongside account-level entities.
+                </p>
+              </div>
+
+              <div class="p-2.5 bg-slate-900/80 rounded border border-slate-800 hover:border-cyan-500/50 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                  <div>
+                    <strong class="text-white">BlazingAML (2026):</strong>
+                    <span class="text-slate-300 italic">BlazingAML: High-Throughput Anti-Money Laundering (AML) Detection with Hybrid Graph Pattern Mining and AI</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge badge-info text-[10px]">arXiv 2026</span>
+                    <a href="https://arxiv.org/html/2604.12241v1" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">arXiv:2604.12241 ↗</a>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">
+                  Pioneers high-throughput hybrid graph motif mining coupled with gradient boosted decision trees, achieving 4.9× faster throughput than Graph Transformers with equal recall.
+                </p>
+              </div>
+
+              <div class="p-2.5 bg-slate-900/80 rounded border border-slate-800 hover:border-cyan-500/50 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                  <div>
+                    <strong class="text-white">Hargura & Obuhuma (2026):</strong>
+                    <span class="text-slate-300 italic">Graph Neural Network-Based Detection for Anti-Money Laundering in Financial Transaction Networks: A Systematic Review</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="badge badge-info text-[10px]">AJEST 2026</span>
+                    <a href="https://ajest.org/index.php/ajest/article/view/1055" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[11px]">AJEST ↗</a>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">
+                  Systematic benchmarks across five AML generations and rigorous analysis of post-hoc regulatory SHAP explainability mandates for banking supervisory compliance.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Foundational AML & ML Literature (2008-2023) -->
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+              <span>🏛️</span> Foundational AML & Machine Learning Literature (2008–2023)
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              <div class="p-2 bg-slate-900/60 rounded border border-slate-800/80">
+                <div class="flex justify-between items-center mb-0.5">
+                  <strong class="text-white text-[11px]">Altman et al. (2023)</strong>
+                  <a href="https://arxiv.org/html/2306.16424v1" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[10px]">NeurIPS / arXiv ↗</a>
+                </div>
+                <div class="text-[11px] text-slate-400">Realistic Synthetic Financial Transactions for AML Models (IBM AMLworld benchmark source).</div>
+              </div>
+
+              <div class="p-2 bg-slate-900/60 rounded border border-slate-800/80">
+                <div class="flex justify-between items-center mb-0.5">
+                  <strong class="text-white text-[11px]">Weber et al. (2019)</strong>
+                  <a href="https://arxiv.org/abs/1908.02591" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[10px]">arXiv:1908.02591 ↗</a>
+                </div>
+                <div class="text-[11px] text-slate-400">Anti-Money Laundering in Bitcoin: Graph Convolutional Networks on forensic multigraphs.</div>
+              </div>
+
+              <div class="p-2 bg-slate-900/60 rounded border border-slate-800/80">
+                <div class="flex justify-between items-center mb-0.5">
+                  <strong class="text-white text-[11px]">Lundberg & Lee (2017)</strong>
+                  <a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[10px]">NeurIPS / arXiv ↗</a>
+                </div>
+                <div class="text-[11px] text-slate-400">A Unified Approach to Interpreting Model Predictions (TreeSHAP game-theoretic feature attribution).</div>
+              </div>
+
+              <div class="p-2 bg-slate-900/60 rounded border border-slate-800/80">
+                <div class="flex justify-between items-center mb-0.5">
+                  <strong class="text-white text-[11px]">Chen & Guestrin (2016)</strong>
+                  <a href="https://arxiv.org/abs/1603.02754" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[10px]">ACM SIGKDD / arXiv ↗</a>
+                </div>
+                <div class="text-[11px] text-slate-400">XGBoost: A Scalable Tree Boosting System (Supervised gradient tree booster engine).</div>
+              </div>
+
+              <div class="p-2 bg-slate-900/60 rounded border border-slate-800/80 md:col-span-2">
+                <div class="flex justify-between items-center mb-0.5">
+                  <strong class="text-white text-[11px]">Liu, Ting & Zhou (2008)</strong>
+                  <a href="https://www.lamda.nju.edu.cn/publication/icdm08b.pdf" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-mono text-[10px]">IEEE ICDM PDF ↗</a>
+                </div>
+                <div class="text-[11px] text-slate-400">Isolation Forest (IEEE ICDM) — Fast unsupervised anomaly detection via sub-sampling isolation trees.</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

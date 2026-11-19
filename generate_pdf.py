@@ -831,14 +831,22 @@ def build_pdf(filename="FinTrace_Implementation_Blueprint.pdf"):
     story.append(t_road)
     story.append(Spacer(1, 14))
 
-    # Academic References (Slide 11)
-    story.append(Paragraph("6. Academic References & Citations (Slide 11)", h1_style))
+    # Academic References (Slide 11 & 2024-2026 SOTA)
+    story.append(Paragraph("6. Academic References & Citations (Slide 11 & SOTA 2024–2026)", h1_style))
     refs_text = (
-        "1. <b>Weber, M. et al. (2019):</b> <i>Anti-Money Laundering in Bitcoin: Experimenting with Graph Convolutional Networks for Financial Forensics</i>, arXiv:1908.02591.<br/>"
-        "2. <b>Altman, E. et al. (2023):</b> <i>Realistic Synthetic Financial Transactions for Anti-Money Laundering Models</i>, NeurIPS Datasets & Benchmarks.<br/>"
-        "3. <b>Liu, F. T., Ting, K. M., Zhou, Z.-H. (2008):</b> <i>Isolation Forest</i>, IEEE International Conference on Data Mining (ICDM), pp. 413–422.<br/>"
-        "4. <b>Chen, T. & Guestrin, C. (2016):</b> <i>XGBoost: A Scalable Tree Boosting System</i>, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining.<br/>"
-        "5. <b>Lundberg, S. & Lee, S.-I. (2017):</b> <i>A Unified Approach to Interpreting Model Predictions</i>, Advances in Neural Information Processing Systems (NeurIPS 30)."
+        "<b>State-of-the-Art AML Research (2024–2026):</b><br/>"
+        "1. <b>Blanuša, J. et al. (2024):</b> <i>Graph Feature Preprocessor: Real-time Subgraph-based Feature Extraction for Financial Crime Detection</i>, ACM ICAIF 2024 (arXiv:2402.08593).<br/>"
+        "2. <b>Egressy, B. et al. (2024):</b> <i>Provably Powerful Graph Neural Networks for Directed Multigraphs</i>, AAAI 2024 (arXiv:2306.11586).<br/>"
+        "3. <b>Lin, D. et al. (2024):</b> <i>FraudGT: A Simple, Effective, and Efficient Graph Transformer for Financial Fraud Detection</i>, MIT Computer Science & AI Lab.<br/>"
+        "4. <b>Li, X. et al. (2025):</b> <i>LineMVGNN: Anti-Money Laundering with Line-Graph-Assisted Multi-View Graph Neural Networks</i>, MDPI AI 2025, 6(4), 69.<br/>"
+        "5. <b>BlazingAML (2026):</b> <i>BlazingAML: High-Throughput Anti-Money Laundering (AML) Detection with Hybrid Graph Pattern Mining and AI</i>, arXiv:2604.12241.<br/>"
+        "6. <b>Hargura, E. & Obuhuma, J. (2026):</b> <i>Graph Neural Network-Based Detection for Anti-Money Laundering in Financial Transaction Networks: A Systematic Review</i>, AJEST 2026.<br/><br/>"
+        "<b>Foundational Literature (2008–2023):</b><br/>"
+        "7. <b>Altman, E. et al. (2023):</b> <i>Realistic Synthetic Financial Transactions for Anti-Money Laundering Models</i>, NeurIPS Datasets & Benchmarks.<br/>"
+        "8. <b>Weber, M. et al. (2019):</b> <i>Anti-Money Laundering in Bitcoin: Experimenting with Graph Convolutional Networks for Financial Forensics</i>, arXiv:1908.02591.<br/>"
+        "9. <b>Liu, F. T., Ting, K. M., Zhou, Z.-H. (2008):</b> <i>Isolation Forest</i>, IEEE International Conference on Data Mining (ICDM), pp. 413–422.<br/>"
+        "10. <b>Chen, T. & Guestrin, C. (2016):</b> <i>XGBoost: A Scalable Tree Boosting System</i>, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining.<br/>"
+        "11. <b>Lundberg, S. & Lee, S.-I. (2017):</b> <i>A Unified Approach to Interpreting Model Predictions (TreeSHAP)</i>, NeurIPS 30."
     )
     story.append(Paragraph(refs_text, body_style))
     story.append(Spacer(1, 10))
