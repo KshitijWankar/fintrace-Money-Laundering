@@ -137,10 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Expose state for debugging
   window.FinTraceState = state;
 
-  // Backend API Client with Graceful Client-Side Fallback
-  const API_BASE = (window.location.protocol.startsWith('http') && window.location.port === '8000')
-    ? ''
-    : 'http://localhost:8000';
+  // Backend API Client with Multi-Port Auto-Discovery & Graceful Standalone Fallback
+  let API_BASE = window.location.protocol.startsWith('http') ? '' : 'http://127.0.0.1:8080';
 
   const ApiClient = {
     async get(endpoint) {
@@ -188,24 +186,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Check connectivity to FastAPI backend
+  // Check connectivity to FastAPI backend with candidate ports
   async function initBackendSync() {
     state.initialHealthChecked = true;
-    try {
-      const t0 = performance.now();
-      const res = await fetch(`${API_BASE}/api/v1/system/health-topology`, { method: 'GET', signal: AbortSignal.timeout(1500) });
-      if (res.ok) {
-        const data = await res.json();
-        const latency = Math.max(1, Math.round(performance.now() - t0));
-        state.backendConnected = true;
-        updateBackendStatusUI(true, latency, data);
-        console.log('[FinTrace] Successfully synchronized with FastAPI backend at', API_BASE);
-      } else {
-        updateBackendStatusUI(false);
-      }
-    } catch (e) {
-      updateBackendStatusUI(false);
+    const candidates = [];
+    if (window.location.protocol.startsWith('http')) {
+      candidates.push(''); // Same origin if served via FastAPI directly
     }
+    candidates.push('http://127.0.0.1:8080', 'http://localhost:8080', 'http://127.0.0.1:8000', 'http://localhost:8000', 'http://127.0.0.1:8001');
+
+    for (const base of candidates) {
+      try {
+        const t0 = performance.now();
+        const res = await fetch(`${base}/api/v1/system/health-topology`, { method: 'GET', signal: AbortSignal.timeout(800) });
+        if (res.ok) {
+          const data = await res.json();
+          const latency = Math.max(1, Math.round(performance.now() - t0));
+          API_BASE = base;
+          state.backendConnected = true;
+          updateBackendStatusUI(true, latency, data);
+          console.log('[FinTrace] Successfully synchronized with FastAPI backend at', API_BASE || window.location.origin);
+          return;
+        }
+      } catch (e) {
+        // Try next candidate
+      }
+    }
+    updateBackendStatusUI(false);
   }
 
   function updateBackendStatusUI(isOnline, latency = 0, healthData = null) {
